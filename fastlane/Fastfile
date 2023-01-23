@@ -17,9 +17,29 @@ default_platform(:ios)
 
 platform :ios do
   desc "Push a new beta build to TestFlight"
+    lane :release do
+    xcversion(version: "14.2")
+    app_store_connect_api_key(
+      key_id: "GSRT4S8383",
+      issuer_id: "716d7310-e113-41c9-9185-52d3015c587f",
+      key_filepath: "./AuthKey_GSRT4S8383.p8",
+      duration: 1200, # optional (maximum 1200)
+      in_house: false # optional but may be required if using match/sigh
+    )
+  end
+
+  desc "Push a new beta build to TestFlight"
   lane :beta do
     increment_build_number(xcodeproj: "SmartDic.xcodeproj")
+    build_app(xcargs: "-allowProvisioningUpdates")
     build_app(scheme: "SmartDic")
+    gym
     upload_to_testflight
   end
+
+  desc "Build the iOS application."
+  lane :run_fast do
+    release
+    beta
+   end
 end
